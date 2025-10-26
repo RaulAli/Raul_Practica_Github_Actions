@@ -1,0 +1,41 @@
+name: Raul_Practica_Github_Actions_workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linter_job:
+    name: Linter_job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install deps (prefer lockfile)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Verify lint script exists
+        run: |
+          node -e "const p=require('./package.json'); if(!p.scripts?.lint){console.error('No hay script \"lint\" en package.json'); process.exit(2)}; console.log('lint script:', p.scripts.lint)"
+
+      - name: Run linter (fail on warnings)
+        run: npm run lint -- --max-warnings=0
