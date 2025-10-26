@@ -110,6 +110,7 @@ Es pot consultar tota la documentació gràfica i el pas a pas de la pràctica a
 ```markdown
 Example of nextjs project using Cypress.io
 
-RESULTAT DELS ÚLTIMS TESTS  
-![Tests](https://img.shields.io/badge/test-failure-red)
+RESULTAT DELS ÚLTIMS TESTS
 
+![Tests](https://img.shields.io/badge/test-failure-red)
+  
