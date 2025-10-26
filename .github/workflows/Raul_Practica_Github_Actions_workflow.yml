@@ -117,6 +117,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Download Cypress result
         uses: actions/download-artifact@v4
@@ -129,13 +132,22 @@ jobs:
         run: |
           OUT=$(cat result.txt)
           echo "cypress_outcome=$OUT" >> $GITHUB_OUTPUT
-          # (deprecado, pero si tu profe lo pide, lo dejamos también)
+          # (deprecated pero pedido en la práctica)
           echo "::set-output name=cypress_outcome::$OUT"
 
       - name: Add badge to README
         uses: ./.github/actions/add-badge
         with:
           outcome: ${{ steps.get_outcome.outputs.cypress_outcome }}
+
+      - name: Determine branch to push
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "BRANCH=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit and push README
         run: |
@@ -144,7 +156,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add README.md
             git commit -m "docs: update README with Cypress badge [skip ci]"
-            git push
+            git push origin HEAD:${{ steps.vars.outputs.BRANCH }}
           else
             echo "No changes in README.md"
           fi
