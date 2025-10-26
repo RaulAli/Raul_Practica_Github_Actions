@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  actions: read
 
 jobs:
   linter_job:
@@ -107,3 +108,43 @@ jobs:
           github-comment: false
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+  add_badge_job:
+    name: Add_badge_job
+    runs-on: ubuntu-latest
+    needs: [ cypress_job ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Cypress result
+        uses: actions/download-artifact@v4
+        with:
+          name: cypress-result
+          path: .
+
+      - name: Set output from artifact
+        id: get_outcome
+        run: |
+          OUT=$(cat result.txt)
+          echo "cypress_outcome=$OUT" >> $GITHUB_OUTPUT
+          # (deprecado, pero si tu profe lo pide, lo dejamos también)
+          echo "::set-output name=cypress_outcome::$OUT"
+
+      - name: Add badge to README
+        uses: ./.github/actions/add-badge
+        with:
+          outcome: ${{ steps.get_outcome.outputs.cypress_outcome }}
+
+      - name: Commit and push README
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "docs: update README with Cypress badge [skip ci]"
+            git push
+          else
+            echo "No changes in README.md"
+          fi

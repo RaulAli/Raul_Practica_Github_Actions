@@ -1,0 +1,9 @@
+name: "Add Cypress badge to README"
+description: "Append success/failure badge after the marker line"
+inputs:
+  outcome:
+    description: "Cypress job outcome"
+    required: true
+runs:
+  using: "node16"
+  main: "index.js"
