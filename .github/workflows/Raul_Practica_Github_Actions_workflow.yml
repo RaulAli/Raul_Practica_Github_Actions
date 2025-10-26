@@ -40,7 +40,7 @@ jobs:
       - name: Run linter (fail on warnings)
         run: npm run lint -- --max-warnings=0
 
-          cypress_job:
+  cypress_job:
     name: Cypress_job
     runs-on: ubuntu-latest
     needs: [ linter_job ]
