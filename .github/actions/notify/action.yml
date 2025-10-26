@@ -1,0 +1,12 @@
+name: "Notify by Email"
+description: "Send workflow results via SMTP"
+inputs:
+  to: { description: "Destination email", required: true }
+  subject: { description: "Email subject", required: true }
+  linter_result: { required: true }
+  cypress_result: { required: true }
+  add_badge_result: { required: true }
+  deploy_result: { required: true }
+runs:
+  using: "node16"
+  main: "index.js"
